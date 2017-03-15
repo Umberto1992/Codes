@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # First program to try how to code in phyton #
 # Use of integers, sum and print             #
-# Umberto Bollo
+# Umberto Bollo                              #
 c = 4
 
 d = 9
