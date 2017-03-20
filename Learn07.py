@@ -7,7 +7,6 @@ Created on Fri Mar 17 14:52:20 2017
 """
 
 import numpy as np
-import sklearn.datasets
 import matplotlib.pyplot as plt
 
 np.random.seed(12)
