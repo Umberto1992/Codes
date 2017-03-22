@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+
+#Trying to code the backpropagation, wrong code, i'll fix it in the next one
 """
 Created on Tue Mar 21 10:18:04 2017
 
@@ -48,7 +50,7 @@ out = f(np.dot(W2, x) + b2) # output neuron, it's a single neuron
 ########################  Error Estimation - Output Layer ###################################
  
 error = out - y # calculate error of every single input at the output
-derivative_out = scipy.misc.derivative(f,np.dot(W2, x) + b2) #gradient of the sigmoid function applied in every single value stored at the output node
+derivative_out = scipy.misc.derivative(f,np.dot(W2, h1) + b2) #gradient of the sigmoid function applied in every single value stored at the output node
 delta_out = derivative_out*error # error weighted with gradient
 gradient_out = np.zeros((3,2*iterations))
 
@@ -63,7 +65,16 @@ for i in range(0,3):
 
 ########################## Backpropagation #####################################
 
-eps = 0.3
-alpha = 0.01
+eps = 0.7
+alpha = 0.2 #to escape local minima
 
 previous_delta = np.zeros((3,1))
+current_delta = np.zeros((3,1))
+
+for i in range(0,3):
+     current_delta[i] = np.sum(eps*delta_h[i] + alpha*previous_delta[i])
+     W2[0,i] = W2[0,i] + current_delta[i]
+     
+     
+previous_delta = current_delta
+
