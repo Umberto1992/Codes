@@ -9,7 +9,7 @@ Created on Wed Mar 22 11:22:51 2017
 import numpy as np
 import matplotlib.pyplot as plt
 
-np.random.seed(12)
+np.random.seed(7)
 
 
 ############################ Initialization #####################################
@@ -37,7 +37,7 @@ for i in loop:
     
 plt.scatter(X1[:,0], X1[:,1], s=40, c=y, cmap=plt.cm.Spectral) # Plot of the dataset
 
-for steps in range(0,20):
+for steps in range(0,3000):
 
      ######################### Feedforward Step ######################################
      
@@ -94,3 +94,11 @@ for steps in range(0,20):
          b1[i] = b1[i] - np.sum(delta_h1[i,:])     
      
      
+####################### Plot the Classifier ##############################     
+     
+X_plots = 10*(np.random.rand(9000,2)-0.5)
+Yplots = np.zeros(9000)
+
+outplot_h1 = f(np.dot(W1, np.transpose(X_plots)) + b1) # calculate first hidden layer activations
+Yplots = f(np.dot(W2, outplot_h1) + b2) # output neuron, it's a single neuron
+plt.scatter(X_plots[:,0], X_plots[:,1], s=1, c=Yplots, cmap=plt.cm.Spectral) # Plot of the dataset
