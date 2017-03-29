@@ -15,10 +15,12 @@ from sklearn.datasets import load_iris
 X = load_iris()
 
 
-Net = myNN.Network(2,4,X)
+Net = myNN.Network(5,7,X)
 
-UpdNet = loopNN.ForAndBack(Net, X)
+UpdNet, MSE, Delta = loopNN.ForAndBack(Net, X)
 
+Error = np.mean(MSE)
 
+print(MSE, Error)
 
 

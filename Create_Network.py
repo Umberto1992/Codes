@@ -12,12 +12,12 @@ import numpy as np
 
 def Network(Layers, Neurons, dataset):
      
-     to_input_w = 10*(np.random.rand(Neurons,np.size(dataset.data[:,0]))-0.5)
+     to_input_w = 5*(np.random.rand(Neurons,np.size(dataset.data[0,:]))-0.5)
      
-     hidden_w = 10*(np.random.rand(Neurons,Neurons,Layers)-0.5)
-     hidden_b = 10*(np.random.rand(Neurons,Layers)-0.5)
+     hidden_w = 5*(np.random.rand(Neurons,Neurons,Layers)-0.5)
+     hidden_b = 5*(np.random.rand(Neurons,Layers)-0.5)
      
-     output_w = 10*(np.random.rand(np.size(dataset.target_names),Neurons)-0.5)
-     out_b = 10*(np.random.rand(np.size(dataset.target_names)))
+     output_w = 5*(np.random.rand(np.size(dataset.target_names),Neurons)-0.5)
+     out_b = 5*(np.random.rand(np.size(dataset.target_names)))
      
      return to_input_w, hidden_w, output_w, hidden_b, out_b
