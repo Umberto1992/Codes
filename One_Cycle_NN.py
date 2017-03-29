@@ -57,9 +57,9 @@ def ForAndBack(network_tuple, dataset):
           delta_h[i,n_layers-1,:] = deriv_h[i,n_layers-1,:]*np.sum(np.dot(w_o[:,i],delta_out.T))
      
      
-     for i in range(n_layers-2,0):
+     for i in reversed(range(n_layers-1)):
           for j in range (0,n_neurons):
-               delta_h[j,i,:] = deriv_h[j,i,:]*np.sum(np.dot(w_h[j,i,:]*delta_h[j,i+1,:]))
+               delta_h[j,i,:] = deriv_h[j,i,:]*np.sum(np.dot(w_h[j,:,i],delta_h[:,i+1,:]))
 
      
      return final_out, MSE, delta_h
