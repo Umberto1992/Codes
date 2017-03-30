@@ -17,10 +17,18 @@ X = load_iris()
 
 Net = myNN.Network(5,7,X)
 
-UpdNet, MSE, Delta = loopNN.ForAndBack(Net, X)
+UpdNet, MSE = loopNN.ForAndBack(Net, X)
 
 Error = np.mean(MSE)
 
 print(MSE, Error)
 
+for i in range(0,3):
+     
+     UpdNet, MSE = loopNN.ForAndBack(UpdNet, X)
 
+     Error = np.mean(MSE)
+
+     print(MSE, Error)
+     
+     

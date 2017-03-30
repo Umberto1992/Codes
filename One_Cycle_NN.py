@@ -16,9 +16,10 @@ def ForAndBack(network_tuple, dataset):
      b_o = network_tuple[4]
      X_input = np.transpose(dataset.data)
      Y_target = dataset.target
-     n_layers = np.size(w_h[0,0,:])
+     n_layers = np.size(w_h[0,0,:])+1
      n_neurons = np.size(w_h[0,:,0])
      n_sample = np.size(X_input[0,:])
+     n_features = np.size(X_input[:,0])
      n_labels = np.size(b_o)
      partial_output = np.zeros((n_neurons, n_layers, n_sample))
      final_out = np.zeros((n_labels,n_sample))
@@ -34,6 +35,7 @@ def ForAndBack(network_tuple, dataset):
      
      final_out = f(np.dot(w_o, partial_output[:,i]).T + b_o)
      
+     
  ######################### Error Estimate #######################################
      
      accum = np.zeros(n_labels)
@@ -41,10 +43,14 @@ def ForAndBack(network_tuple, dataset):
         for j in range(0,n_sample):
              if Y_target[j] == i:
                   accum[i] += (1-final_out[j,i])**2
+#                  accum[i] += final_out[j,i] - 1
              else:
                   accum[i] += (final_out[j,i])**2
+ #                 accum[i] += final_out[j,i]
           
-     MSE = accum/n_sample     
+     MSE = accum/n_sample 
+     
+     
 ########################### Backpropagation ########################################
 
      deriv_out = final_out*(1-final_out)
@@ -52,16 +58,56 @@ def ForAndBack(network_tuple, dataset):
      
      deriv_h = partial_output*(1-partial_output)
      delta_h = np.zeros((n_neurons, n_layers, n_sample))
-     
-     for i in range(0,n_neurons):
-          delta_h[i,n_layers-1,:] = deriv_h[i,n_layers-1,:]*np.sum(np.dot(w_o[:,i],delta_out.T))
-     
+ 
+     delta_h[:,n_layers-1,:] = deriv_h[:,n_layers-1,:]*np.sum(np.dot(w_o.T,delta_out.T),0)  
      
      for i in reversed(range(n_layers-1)):
-          for j in range (0,n_neurons):
-               delta_h[j,i,:] = deriv_h[j,i,:]*np.sum(np.dot(w_h[j,:,i],delta_h[:,i+1,:]))
+          delta_h[:,i,:] = deriv_h[:,i,:]*np.sum(np.dot(w_h[:,:,i],delta_h[:,i+1,:]),0)
+ 
+    # delta_in = deri
 
+###################### Weights Update ############################################
+
+     eps = 0.7
+     alpha = 0.3 #to escape local minima
      
-     return final_out, MSE, delta_h
+     
+###################### Out Update #################################################     
+     
+     previous_DELTA_out = np.zeros((n_neurons, n_labels))
+     current_DELTA_out = np.zeros((n_neurons, n_labels))
+     
+     for i in range(0,n_labels):
+          current_DELTA_out[:,i] = -eps*np.sum(delta_out[:,i]*partial_output[:,n_layers-1,:],1) + alpha*previous_DELTA_out[:,i]
+    
+     w_o = w_o - current_DELTA_out.T
+     b_o = b_o - np.sum(current_DELTA_out,0)   
+     previous_DELTA_out = current_DELTA_out
+     
+   
+###################### Hidden Layers Update ############################################     
+     
+     previous_DELTA_hl = np.zeros((n_neurons, n_neurons, n_layers-1))
+     current_DELTA_hl = np.zeros((n_neurons, n_neurons, n_layers-1))
+     
+     for i in reversed(range(n_layers-2)):
+          current_DELTA_hl[:,:,i] = -eps*np.sum(delta_h[:,i+1,:]*partial_output[:,i,:],1) + alpha*previous_DELTA_hl[:,:,i]
+     
+     w_h = w_h - current_DELTA_hl
+     b_h = b_h -np.sum(current_DELTA_hl)
+     previous_DELTA_hl = current_DELTA_hl
 
+########################## Input Update ################################################
 
+     previous_DELTA_inl = np.zeros((n_neurons, n_features))
+     current_DELTA_inl = np.zeros((n_neurons, n_features))
+     
+     for i in range(0,n_features):
+         current_DELTA_inl[:,i] = -eps*np.sum(delta_h[:,0,:]*X_input[i,:],1) + alpha*previous_DELTA_inl[:,i] 
+     
+     w_in = w_in - current_DELTA_inl
+     previous_DELTA_inl = current_DELTA_inl
+     
+     UpdatedNet = (w_in, w_h, w_o, b_h, b_o)
+     
+     return UpdatedNet, MSE
