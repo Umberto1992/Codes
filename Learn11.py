@@ -15,7 +15,7 @@ from sklearn.datasets import load_iris
 X = load_iris()
 
 
-Net = myNN.Network(5,7,X)
+Net = myNN.Network(2,3,X)
 
 UpdNet, MSE = loopNN.ForAndBack(Net, X)
 
@@ -23,7 +23,7 @@ Error = np.mean(MSE)
 
 print(MSE, Error)
 
-for i in range(0,3):
+for i in range(0,15000):
      
      UpdNet, MSE = loopNN.ForAndBack(UpdNet, X)
 

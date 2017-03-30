@@ -33,33 +33,35 @@ def ForAndBack(network_tuple, dataset):
      for i in range(1,n_layers):
           partial_output[:,i,:] = f(np.dot(w_h[:,:,i-1], partial_output[:,i-1]).T + b_h[:,i]).T
      
-     final_out = f(np.dot(w_o, partial_output[:,i]).T + b_o)
+     final_out = f(np.dot(w_o, partial_output[:,i]).T + b_o).T
      
      
  ######################### Error Estimate #######################################
      
-     accum = np.zeros(n_labels)
-     for i in range(0,n_labels):
-        for j in range(0,n_sample):
+     error = np.zeros((n_labels,n_sample))
+     
+     for j in range(0,n_sample):
+        for i in range(0,n_labels):
              if Y_target[j] == i:
-                  accum[i] += (1-final_out[j,i])**2
-#                  accum[i] += final_out[j,i] - 1
+ #                 accum[i] += (1-final_out[i,j])**2
+ #                 accum[i] += final_out[i,j] - 1
+                 error[i,j] = (1-final_out[i,j])**2
              else:
-                  accum[i] += (final_out[j,i])**2
- #                 accum[i] += final_out[j,i]
-          
-     MSE = accum/n_sample 
+ #                 accum[i] += (final_out[i,j])**2
+#                  accum[i] += final_out[i,j]
+                error[i,j] = (final_out[i,j])**2
+     MSE = np.sum(error,1)/n_sample 
      
      
 ########################### Backpropagation ########################################
 
-     deriv_out = final_out*(1-final_out)
-     delta_out = deriv_out*MSE
+     deriv_out = final_out*(1 - final_out)
+     delta_out = deriv_out*error
      
-     deriv_h = partial_output*(1-partial_output)
+     deriv_h = partial_output*(1 - partial_output)
      delta_h = np.zeros((n_neurons, n_layers, n_sample))
  
-     delta_h[:,n_layers-1,:] = deriv_h[:,n_layers-1,:]*np.sum(np.dot(w_o.T,delta_out.T),0)  
+     delta_h[:,n_layers-1,:] = deriv_h[:,n_layers-1,:]*np.sum(np.dot(w_o.T,delta_out),0)  
      
      for i in reversed(range(n_layers-1)):
           delta_h[:,i,:] = deriv_h[:,i,:]*np.sum(np.dot(w_h[:,:,i],delta_h[:,i+1,:]),0)
@@ -74,13 +76,13 @@ def ForAndBack(network_tuple, dataset):
      
 ###################### Out Update #################################################     
      
-     previous_DELTA_out = np.zeros((n_neurons, n_labels))
-     current_DELTA_out = np.zeros((n_neurons, n_labels))
+     previous_DELTA_out = np.zeros((n_labels, n_neurons))
+     current_DELTA_out = np.zeros((n_labels, n_neurons))
      
      for i in range(0,n_labels):
-          current_DELTA_out[:,i] = -eps*np.sum(delta_out[:,i]*partial_output[:,n_layers-1,:],1) + alpha*previous_DELTA_out[:,i]
+          current_DELTA_out[:,i] = -eps*np.sum(delta_out[i,:]*partial_output[:,n_layers-1,:],1) + alpha*previous_DELTA_out[:,i]
     
-     w_o = w_o - current_DELTA_out.T
+     w_o = w_o + current_DELTA_out
      b_o = b_o - np.sum(current_DELTA_out,0)   
      previous_DELTA_out = current_DELTA_out
      
@@ -93,8 +95,8 @@ def ForAndBack(network_tuple, dataset):
      for i in reversed(range(n_layers-2)):
           current_DELTA_hl[:,:,i] = -eps*np.sum(delta_h[:,i+1,:]*partial_output[:,i,:],1) + alpha*previous_DELTA_hl[:,:,i]
      
-     w_h = w_h - current_DELTA_hl
-     b_h = b_h -np.sum(current_DELTA_hl)
+     w_h = w_h + current_DELTA_hl
+     b_h = b_h - np.sum(current_DELTA_hl)
      previous_DELTA_hl = current_DELTA_hl
 
 ########################## Input Update ################################################
@@ -105,7 +107,7 @@ def ForAndBack(network_tuple, dataset):
      for i in range(0,n_features):
          current_DELTA_inl[:,i] = -eps*np.sum(delta_h[:,0,:]*X_input[i,:],1) + alpha*previous_DELTA_inl[:,i] 
      
-     w_in = w_in - current_DELTA_inl
+     w_in = w_in + current_DELTA_inl
      previous_DELTA_inl = current_DELTA_inl
      
      UpdatedNet = (w_in, w_h, w_o, b_h, b_o)
