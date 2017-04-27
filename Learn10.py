@@ -37,7 +37,7 @@ for i in loop:
     
 plt.scatter(X1[:,0], X1[:,1], s=40, c=y, cmap=plt.cm.Spectral) # Plot of the dataset
 
-for steps in range(0,30):
+for steps in range(0,80):
 
      ######################### Feedforward Step ######################################
      

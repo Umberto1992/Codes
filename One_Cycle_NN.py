@@ -45,12 +45,12 @@ def ForAndBack(network_tuple, dataset):
              if Y_target[j] == i:
  #                 accum[i] += (1-final_out[i,j])**2
  #                 accum[i] += final_out[i,j] - 1
-                 error[i,j] = (1-final_out[i,j])**2
+                 error[i,j] = final_out[i,j]-1
              else:
  #                 accum[i] += (final_out[i,j])**2
 #                  accum[i] += final_out[i,j]
-                error[i,j] = (final_out[i,j])**2
-     MSE = np.sum(error,1)/n_sample 
+                error[i,j] = final_out[i,j]
+     MSE = np.sum(error**2/2,1)/n_sample
      
      
 ########################### Backpropagation ########################################
@@ -71,7 +71,7 @@ def ForAndBack(network_tuple, dataset):
 ###################### Weights Update ############################################
 
      eps = 0.7
-     alpha = 0.3 #to escape local minima
+     alpha = 0 #to escape local minima
      
      
 ###################### Out Update #################################################     
@@ -80,10 +80,10 @@ def ForAndBack(network_tuple, dataset):
      current_DELTA_out = np.zeros((n_labels, n_neurons))
      
      for i in range(0,n_labels):
-          current_DELTA_out[:,i] = -eps*np.sum(delta_out[i,:]*partial_output[:,n_layers-1,:],1) + alpha*previous_DELTA_out[:,i]
+          current_DELTA_out[i,:] = -eps*np.sum(partial_output[:,n_layers-1,:]*delta_out[i,:],1) + alpha*previous_DELTA_out[i,:]
     
      w_o = w_o + current_DELTA_out
-     b_o = b_o - np.sum(current_DELTA_out,0)   
+     b_o = b_o - eps*np.sum(delta_out,1)  
      previous_DELTA_out = current_DELTA_out
      
    
@@ -96,7 +96,7 @@ def ForAndBack(network_tuple, dataset):
           current_DELTA_hl[:,:,i] = -eps*np.sum(delta_h[:,i+1,:]*partial_output[:,i,:],1) + alpha*previous_DELTA_hl[:,:,i]
      
      w_h = w_h + current_DELTA_hl
-     b_h = b_h - np.sum(current_DELTA_hl)
+     b_h = b_h - np.sum(delta_h,2)
      previous_DELTA_hl = current_DELTA_hl
 
 ########################## Input Update ################################################
@@ -112,4 +112,4 @@ def ForAndBack(network_tuple, dataset):
      
      UpdatedNet = (w_in, w_h, w_o, b_h, b_o)
      
-     return UpdatedNet, MSE
+     return UpdatedNet, MSE, final_out

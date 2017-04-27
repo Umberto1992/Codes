@@ -10,16 +10,19 @@ Created on Tue Mar 28 17:49:45 2017
 
 import numpy as np
 
-np.random.seed(7)
+np.random.seed(3)
 
 def Network(Layers, Neurons, dataset):
      
-     to_input_w = 3*(np.random.rand(Neurons,np.size(dataset.data[0,:]))-0.5)
+     var = 0.2
+     mean = 0.5
      
-     hidden_w = 3*(np.random.rand(Neurons,Neurons,Layers-1)-0.5)
-     hidden_b = 3*(np.random.rand(Neurons,Layers)-0.5)
+     to_input_w = var*(np.random.rand(Neurons,np.size(dataset.data[0,:]))+ (mean-0.5))
      
-     output_w = 3*(np.random.rand(np.size(dataset.target_names),Neurons)-0.5)
-     out_b = 3*(np.random.rand(np.size(dataset.target_names)))
+     hidden_w = var*(np.random.rand(Neurons,Neurons,Layers-1)+ (mean-0.5))
+     hidden_b = var*(np.random.rand(Neurons,Layers)+ (mean-0.5))
+     
+     output_w = var*(np.random.rand(np.size(dataset.target_names),Neurons)+ (mean-0.5))
+     out_b = var*(np.random.rand(np.size(dataset.target_names))+ (mean-0.5))
      
      return to_input_w, hidden_w, output_w, hidden_b, out_b
